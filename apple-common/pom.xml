@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.mizhousoft.apple</groupId>
+		<groupId>com.mizhousoft.sdk</groupId>
 		<artifactId>apple-sdk</artifactId>
 		<version>1.0.0</version>
 	</parent>

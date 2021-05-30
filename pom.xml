@@ -9,7 +9,7 @@
 		<version>1.0.5</version>
 	</parent>
 
-	<groupId>com.mizhousoft.apple</groupId>
+	<groupId>com.mizhousoft.sdk</groupId>
 	<artifactId>apple-sdk</artifactId>
 	<version>1.0.0</version>
 	<packaging>pom</packaging>
