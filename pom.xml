@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.mizhousoft</groupId>
+		<artifactId>mizhousoft</artifactId>
+		<version>1.0.5</version>
+	</parent>
+
+	<groupId>com.mizhousoft.apple</groupId>
+	<artifactId>apple-sdk</artifactId>
+	<version>1.0.0</version>
+	<packaging>pom</packaging>
+
+	<name>apple-sdk</name>
+	<description>Apple SDK</description>
+
+	<properties>
+		<commons.version>1.0.1</commons.version>
+		<apple.version>1.0.0</apple.version>
+	</properties>
+
+	<modules>
+		<module>apple-common</module>
+		<module>apple-inapp-purchase</module>
+		<module>apple-open</module>
+		<module>apple-all</module>
+	</modules>
+
+</project>
