@@ -671,4 +671,172 @@ public class LatestReceiptInfo
 	{
 		this.webOrderLineItemId = webOrderLineItemId;
 	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("{\"");
+		if (appAccountToken != null)
+		{
+			builder.append("appAccountToken\":\"");
+			builder.append(appAccountToken);
+			builder.append("\", \"");
+		}
+		if (cancellationDate != null)
+		{
+			builder.append("cancellationDate\":\"");
+			builder.append(cancellationDate);
+			builder.append("\", \"");
+		}
+		if (cancellationDateMs != null)
+		{
+			builder.append("cancellationDateMs\":\"");
+			builder.append(cancellationDateMs);
+			builder.append("\", \"");
+		}
+		if (cancellationDatePst != null)
+		{
+			builder.append("cancellationDatePst\":\"");
+			builder.append(cancellationDatePst);
+			builder.append("\", \"");
+		}
+		if (cancellationReason != null)
+		{
+			builder.append("cancellationReason\":\"");
+			builder.append(cancellationReason);
+			builder.append("\", \"");
+		}
+		if (expiresDate != null)
+		{
+			builder.append("expiresDate\":\"");
+			builder.append(expiresDate);
+			builder.append("\", \"");
+		}
+		if (expiresDateMs != null)
+		{
+			builder.append("expiresDateMs\":\"");
+			builder.append(expiresDateMs);
+			builder.append("\", \"");
+		}
+		if (expiresDatePst != null)
+		{
+			builder.append("expiresDatePst\":\"");
+			builder.append(expiresDatePst);
+			builder.append("\", \"");
+		}
+		if (inAppOwnershipType != null)
+		{
+			builder.append("inAppOwnershipType\":\"");
+			builder.append(inAppOwnershipType);
+			builder.append("\", \"");
+		}
+		if (isInIntroOfferPeriod != null)
+		{
+			builder.append("isInIntroOfferPeriod\":\"");
+			builder.append(isInIntroOfferPeriod);
+			builder.append("\", \"");
+		}
+		if (isTrialPeriod != null)
+		{
+			builder.append("isTrialPeriod\":\"");
+			builder.append(isTrialPeriod);
+			builder.append("\", \"");
+		}
+		if (isUpgraded != null)
+		{
+			builder.append("isUpgraded\":\"");
+			builder.append(isUpgraded);
+			builder.append("\", \"");
+		}
+		if (offerCodeRefName != null)
+		{
+			builder.append("offerCodeRefName\":\"");
+			builder.append(offerCodeRefName);
+			builder.append("\", \"");
+		}
+		if (originalPurchaseDate != null)
+		{
+			builder.append("originalPurchaseDate\":\"");
+			builder.append(originalPurchaseDate);
+			builder.append("\", \"");
+		}
+		if (originalPurchaseDateMs != null)
+		{
+			builder.append("originalPurchaseDateMs\":\"");
+			builder.append(originalPurchaseDateMs);
+			builder.append("\", \"");
+		}
+		if (originalPurchaseDatePst != null)
+		{
+			builder.append("originalPurchaseDatePst\":\"");
+			builder.append(originalPurchaseDatePst);
+			builder.append("\", \"");
+		}
+		if (originalTransactionId != null)
+		{
+			builder.append("originalTransactionId\":\"");
+			builder.append(originalTransactionId);
+			builder.append("\", \"");
+		}
+		if (promotionalOfferId != null)
+		{
+			builder.append("promotionalOfferId\":\"");
+			builder.append(promotionalOfferId);
+			builder.append("\", \"");
+		}
+		if (productId != null)
+		{
+			builder.append("productId\":\"");
+			builder.append(productId);
+			builder.append("\", \"");
+		}
+		if (purchaseDate != null)
+		{
+			builder.append("purchaseDate\":\"");
+			builder.append(purchaseDate);
+			builder.append("\", \"");
+		}
+		if (purchaseDateMs != null)
+		{
+			builder.append("purchaseDateMs\":\"");
+			builder.append(purchaseDateMs);
+			builder.append("\", \"");
+		}
+		if (purchaseDatePst != null)
+		{
+			builder.append("purchaseDatePst\":\"");
+			builder.append(purchaseDatePst);
+			builder.append("\", \"");
+		}
+		if (quantity != null)
+		{
+			builder.append("quantity\":\"");
+			builder.append(quantity);
+			builder.append("\", \"");
+		}
+		if (subscriptionGroupIdentifier != null)
+		{
+			builder.append("subscriptionGroupIdentifier\":\"");
+			builder.append(subscriptionGroupIdentifier);
+			builder.append("\", \"");
+		}
+		if (transactionId != null)
+		{
+			builder.append("transactionId\":\"");
+			builder.append(transactionId);
+			builder.append("\", \"");
+		}
+		if (webOrderLineItemId != null)
+		{
+			builder.append("webOrderLineItemId\":\"");
+			builder.append(webOrderLineItemId);
+		}
+		builder.append("\"}");
+		return builder.toString();
+	}
 }

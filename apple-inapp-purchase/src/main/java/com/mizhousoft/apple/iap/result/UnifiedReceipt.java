@@ -116,13 +116,26 @@ public class UnifiedReceipt
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append("{\"environment\":\"");
-		builder.append(environment);
-		builder.append("\", \"latestReceipt\":\"");
-		builder.append(latestReceipt);
-		builder.append("\", \"latestReceiptInfos\":\"");
-		builder.append(latestReceiptInfos);
-		builder.append("\", \"status\":\"");
+		builder.append("{\"");
+		if (environment != null)
+		{
+			builder.append("environment\":\"");
+			builder.append(environment);
+			builder.append("\", \"");
+		}
+		if (latestReceipt != null)
+		{
+			builder.append("latestReceipt\":\"");
+			builder.append(latestReceipt);
+			builder.append("\", \"");
+		}
+		if (latestReceiptInfos != null)
+		{
+			builder.append("latestReceiptInfos\":\"");
+			builder.append(latestReceiptInfos);
+			builder.append("\", \"");
+		}
+		builder.append("status\":\"");
 		builder.append(status);
 		builder.append("\"}");
 		return builder.toString();

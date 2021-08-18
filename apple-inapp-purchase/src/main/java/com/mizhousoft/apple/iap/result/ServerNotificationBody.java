@@ -353,34 +353,84 @@ public class ServerNotificationBody
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append("{\"autoRenewAdamId\":\"");
-		builder.append(autoRenewAdamId);
-		builder.append("\", \"autoRenewProductId\":\"");
-		builder.append(autoRenewProductId);
-		builder.append("\", \"autoRenewStatus\":\"");
-		builder.append(autoRenewStatus);
-		builder.append("\", \"autoRenewStatusChangeDate\":\"");
-		builder.append(autoRenewStatusChangeDate);
-		builder.append("\", \"autoRenewStatusChangeDateMs\":\"");
-		builder.append(autoRenewStatusChangeDateMs);
-		builder.append("\", \"autoRenewStatusChangeDatePst\":\"");
-		builder.append(autoRenewStatusChangeDatePst);
-		builder.append("\", \"bid\":\"");
-		builder.append(bid);
-		builder.append("\", \"bvrs\":\"");
-		builder.append(bvrs);
-		builder.append("\", \"environment\":\"");
-		builder.append(environment);
-		builder.append("\", \"expirationIntent\":\"");
+		builder.append("{\"");
+		if (autoRenewAdamId != null)
+		{
+			builder.append("autoRenewAdamId\":\"");
+			builder.append(autoRenewAdamId);
+			builder.append("\", \"");
+		}
+		if (autoRenewProductId != null)
+		{
+			builder.append("autoRenewProductId\":\"");
+			builder.append(autoRenewProductId);
+			builder.append("\", \"");
+		}
+		if (autoRenewStatus != null)
+		{
+			builder.append("autoRenewStatus\":\"");
+			builder.append(autoRenewStatus);
+			builder.append("\", \"");
+		}
+		if (autoRenewStatusChangeDate != null)
+		{
+			builder.append("autoRenewStatusChangeDate\":\"");
+			builder.append(autoRenewStatusChangeDate);
+			builder.append("\", \"");
+		}
+		if (autoRenewStatusChangeDateMs != null)
+		{
+			builder.append("autoRenewStatusChangeDateMs\":\"");
+			builder.append(autoRenewStatusChangeDateMs);
+			builder.append("\", \"");
+		}
+		if (autoRenewStatusChangeDatePst != null)
+		{
+			builder.append("autoRenewStatusChangeDatePst\":\"");
+			builder.append(autoRenewStatusChangeDatePst);
+			builder.append("\", \"");
+		}
+		if (bid != null)
+		{
+			builder.append("bid\":\"");
+			builder.append(bid);
+			builder.append("\", \"");
+		}
+		if (bvrs != null)
+		{
+			builder.append("bvrs\":\"");
+			builder.append(bvrs);
+			builder.append("\", \"");
+		}
+		if (environment != null)
+		{
+			builder.append("environment\":\"");
+			builder.append(environment);
+			builder.append("\", \"");
+		}
+		builder.append("expirationIntent\":\"");
 		builder.append(expirationIntent);
-		builder.append("\", \"notificationType\":\"");
-		builder.append(notificationType);
-		builder.append("\", \"originalTransactionId\":\"");
+		builder.append("\", \"");
+		if (notificationType != null)
+		{
+			builder.append("notificationType\":\"");
+			builder.append(notificationType);
+			builder.append("\", \"");
+		}
+		builder.append("originalTransactionId\":\"");
 		builder.append(originalTransactionId);
-		builder.append("\", \"password\":\"");
-		builder.append(password);
-		builder.append("\", \"unifiedReceipt\":\"");
-		builder.append(unifiedReceipt);
+		builder.append("\", \"");
+		if (password != null)
+		{
+			builder.append("password\":\"");
+			builder.append(password);
+			builder.append("\", \"");
+		}
+		if (unifiedReceipt != null)
+		{
+			builder.append("unifiedReceipt\":\"");
+			builder.append(unifiedReceipt);
+		}
 		builder.append("\"}");
 		return builder.toString();
 	}
