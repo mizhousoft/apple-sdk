@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mizhousoft.apple.common.AppleException;
-import com.mizhousoft.apple.iap.result.VerifyReceiptConstants;
+import com.mizhousoft.apple.iap.constant.VerifyReceiptConstants;
 import com.mizhousoft.apple.iap.result.VerifyReceiptResult;
 import com.mizhousoft.apple.iap.service.InAppPurchaseService;
 import com.mizhousoft.commons.json.JSONException;

@@ -1,4 +1,4 @@
-package com.mizhousoft.apple.iap.result;
+package com.mizhousoft.apple.iap.constant;
 
 /**
  * 常量
