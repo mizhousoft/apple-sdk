@@ -50,6 +50,7 @@
 						<configuration>
 							<createSourcesJar>true</createSourcesJar>
 							<promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+							<useBaseVersion>true</useBaseVersion>
 							<artifactSet>
 								<includes>
 									<include>com.mizhousoft.sdk:apple-common</include>
