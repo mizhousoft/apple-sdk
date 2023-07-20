@@ -51,6 +51,8 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 				throw new AppleException("Response result is null, receipt data is " + receiptData + ", endpoint is " + endpoint);
 			}
 
+			LOG.debug("Apple verify receipt response data is {}.", response);
+
 			VerifyReceiptResult result = JSONUtils.parse(response, VerifyReceiptResult.class);
 			if (result.getStatus() == VerifyReceiptConstants.VERIFY_SUCCESS)
 			{
