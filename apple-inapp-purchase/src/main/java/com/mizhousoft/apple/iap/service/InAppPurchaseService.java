@@ -1,6 +1,9 @@
 package com.mizhousoft.apple.iap.service;
 
+import java.time.LocalDateTime;
+
 import com.mizhousoft.apple.common.AppleException;
+import com.mizhousoft.apple.iap.result.PurchaseReceipt;
 import com.mizhousoft.apple.iap.result.VerifyReceiptResult;
 
 /**
@@ -23,4 +26,15 @@ public interface InAppPurchaseService
 	 * @throws AppleException
 	 */
 	VerifyReceiptResult verifyReceipt(String receiptData) throws AppleException;
+
+	/**
+	 * 获取凭证
+	 * 
+	 * @param result
+	 * @param goodsId
+	 * @param productId
+	 * @param orderTime
+	 * @return
+	 */
+	PurchaseReceipt getPurchaseReceipt(VerifyReceiptResult result, String bundleId, String goodsId, LocalDateTime orderTime);
 }

@@ -1,14 +1,20 @@
 package com.mizhousoft.apple.iap.service.impl;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mizhousoft.apple.common.AppleException;
 import com.mizhousoft.apple.iap.constant.VerifyReceiptConstants;
+import com.mizhousoft.apple.iap.result.PurchaseReceipt;
+import com.mizhousoft.apple.iap.result.ReceiptBody;
 import com.mizhousoft.apple.iap.result.VerifyReceiptResult;
 import com.mizhousoft.apple.iap.service.InAppPurchaseService;
 import com.mizhousoft.commons.json.JSONException;
 import com.mizhousoft.commons.json.JSONUtils;
+import com.mizhousoft.commons.lang.LocalDateTimeUtils;
 import com.mizhousoft.commons.restclient.RestException;
 import com.mizhousoft.commons.restclient.service.RestClientService;
 
@@ -40,7 +46,6 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 		String body = "{\"receipt-data\":\"" + receiptData + "\"}";
 
 		LOG.info("Start to verify apple receipt data.");
-		LOG.debug("Apple verify receipt request data is {}.", body);
 
 		try
 		{
@@ -93,6 +98,51 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public PurchaseReceipt getPurchaseReceipt(VerifyReceiptResult result, String bundleId, String goodsId, LocalDateTime orderTime)
+	{
+		ReceiptBody receiptBody = result.getReceipt();
+		if (null == receiptBody)
+		{
+			LOG.error("ReceiptBody is null.");
+			return null;
+		}
+
+		if (!bundleId.equals(receiptBody.getBundleId()))
+		{
+			LOG.error("Receipt bundle id is invalid, value is {}.", receiptBody.getBundleId());
+			return null;
+		}
+
+		List<PurchaseReceipt> receipts = receiptBody.getPurchaseReceipts();
+		if (null == receipts)
+		{
+			LOG.error("PurchaseReceipt list is null.");
+			return null;
+		}
+
+		long orderTimeTs = LocalDateTimeUtils.toTimestamp(orderTime);
+
+		for (PurchaseReceipt receipt : receipts)
+		{
+			if (!goodsId.equals(receipt.getProductId()))
+			{
+				continue;
+			}
+
+			long purchaseDate = Long.valueOf(receipt.getPurchaseDateMs()).longValue();
+			if (purchaseDate >= orderTimeTs)
+			{
+				return receipt;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * 设置restClientService
 	 * 
 	 * @param restClientService
@@ -101,5 +151,4 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 	{
 		this.restClientService = restClientService;
 	}
-
 }

@@ -18,6 +18,9 @@ public class PurchaseReceipt
 	@JsonProperty("product_id")
 	private String productId;
 
+	@JsonProperty("purchase_date_ms")
+	private String purchaseDateMs;
+
 	/**
 	 * 获取transactionId
 	 * 
@@ -76,5 +79,25 @@ public class PurchaseReceipt
 	public void setProductId(String productId)
 	{
 		this.productId = productId;
+	}
+
+	/**
+	 * 获取purchaseDateMs
+	 * 
+	 * @return
+	 */
+	public String getPurchaseDateMs()
+	{
+		return purchaseDateMs;
+	}
+
+	/**
+	 * 设置purchaseDateMs
+	 * 
+	 * @param purchaseDateMs
+	 */
+	public void setPurchaseDateMs(String purchaseDateMs)
+	{
+		this.purchaseDateMs = purchaseDateMs;
 	}
 }
