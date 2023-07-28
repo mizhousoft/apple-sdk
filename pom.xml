@@ -19,6 +19,8 @@
 
 	<properties>
 		<commons.version>1.7.0-SNAPSHOT</commons.version>
+		<mizhousoft.boot.version>1.7.0-SNAPSHOT</mizhousoft.boot.version>
+		
 		<apple.version>1.7.0-SNAPSHOT</apple.version>
 	</properties>
 
@@ -27,6 +29,7 @@
 		<module>apple-inapp-purchase</module>
 		<module>apple-open</module>
 		<module>apple-all</module>
+		<module>apple-spring-boot-starter</module>
 	</modules>
 
 </project>

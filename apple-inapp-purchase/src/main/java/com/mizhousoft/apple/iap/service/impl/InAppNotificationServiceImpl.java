@@ -48,14 +48,16 @@ public class InAppNotificationServiceImpl implements InAppNotificationService
 			NotificationDecodedPayload decodedPayload = JSONUtils.parse(payload, NotificationDecodedPayload.class);
 
 			String signedTransactionInfo = decodedPayload.getData().getSignedTransactionInfo();
+			if (null != signedTransactionInfo)
+			{
+				String[] transactionInfoValues = signedTransactionInfo.split("\\.");
+				verifyJWT(jwsHeader.getX5c(), signedTransactionInfo);
 
-			String[] transactionInfoValues = signedTransactionInfo.split("\\.");
-			verifyJWT(jwsHeader.getX5c(), signedTransactionInfo);
+				payload = new String(Base64.getDecoder().decode(transactionInfoValues[1]), CharEncoding.UTF8);
+				TransactionDecodedPayload transactionPayload = JSONUtils.parse(payload, TransactionDecodedPayload.class);
 
-			payload = new String(Base64.getDecoder().decode(transactionInfoValues[1]), CharEncoding.UTF8);
-			TransactionDecodedPayload transactionPayload = JSONUtils.parse(payload, TransactionDecodedPayload.class);
-
-			decodedPayload.setTransactionPayload(transactionPayload);
+				decodedPayload.setTransactionPayload(transactionPayload);
+			}
 
 			return decodedPayload;
 		}

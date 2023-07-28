@@ -1,22 +1,24 @@
 package com.mizhousoft.apple.iap.service.impl;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.security.PrivateKey;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 import com.mizhousoft.apple.common.AppleException;
-import com.mizhousoft.apple.iap.constant.VerifyReceiptConstants;
-import com.mizhousoft.apple.iap.result.PurchaseReceipt;
-import com.mizhousoft.apple.iap.result.ReceiptBody;
-import com.mizhousoft.apple.iap.result.VerifyReceiptResult;
+import com.mizhousoft.apple.iap.profile.InAppProfile;
+import com.mizhousoft.apple.iap.response.SendTestNotificationResponse;
 import com.mizhousoft.apple.iap.service.InAppPurchaseService;
 import com.mizhousoft.commons.json.JSONException;
 import com.mizhousoft.commons.json.JSONUtils;
-import com.mizhousoft.commons.lang.LocalDateTimeUtils;
 import com.mizhousoft.commons.restclient.RestException;
+import com.mizhousoft.commons.restclient.RestResponse;
 import com.mizhousoft.commons.restclient.service.RestClientService;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.InvalidKeyException;
 
 /**
  * 苹果内购服务
@@ -25,71 +27,28 @@ import com.mizhousoft.commons.restclient.service.RestClientService;
  */
 public class InAppPurchaseServiceImpl implements InAppPurchaseService
 {
-	private static final Logger LOG = LoggerFactory.getLogger(InAppPurchaseServiceImpl.class);
-
-	private static final int MAX_TRY_NUMBER = 3;
-
 	// REST服务
 	private RestClientService restClientService;
+
+	private InAppProfile inAppProfile;
+
+	private volatile String token;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public VerifyReceiptResult verifyReceipt(String receiptData) throws AppleException
+	public String testNotification() throws AppleException
 	{
-		return doVerifyReceipt(receiptData, PRODUCTION_VERIFY_ENDPOINT, 1);
-	}
-
-	private VerifyReceiptResult doVerifyReceipt(String receiptData, String endpoint, int tryNumber) throws AppleException
-	{
-		String body = "{\"receipt-data\":\"" + receiptData + "\"}";
-
-		LOG.info("Start to verify apple receipt data.");
-
 		try
 		{
-			String response = restClientService.postForObject(endpoint, body, String.class);
-			if (null == response)
-			{
-				LOG.warn("Response result is null, receipt data is {}, endpoint is {}.", receiptData, endpoint);
-				throw new AppleException("Response result is null, receipt data is " + receiptData + ", endpoint is " + endpoint);
-			}
+			String requestUrl = inAppProfile.getEndpoint() + "/inApps/v1/notifications/test";
 
-			LOG.debug("Apple verify receipt response data is {}.", response);
+			RestResponse restResponse = executeRequest(requestUrl, null, null, 1);
 
-			VerifyReceiptResult result = JSONUtils.parse(response, VerifyReceiptResult.class);
-			if (result.getStatus() == VerifyReceiptConstants.VERIFY_SUCCESS)
-			{
-				LOG.info("Verify apple receipt data successfully.");
-				return result;
-			}
-			else if (result.getStatus() == VerifyReceiptConstants.VERIFY_FAIL_TRY_AGAIN)
-			{
-				if (tryNumber < MAX_TRY_NUMBER && result.isRetryable())
-				{
-					LOG.info("Start to verify apple receipt data again, try number is {}.", tryNumber);
-					return doVerifyReceipt(receiptData, endpoint, tryNumber + 1);
-				}
-				else
-				{
-					throw new AppleException("Verify receipt failed, result is " + response);
-				}
-			}
-			else if (result.getStatus() == VerifyReceiptConstants.VERIFY_FAIL_TRY_TEST_ENV)
-			{
-				LOG.warn("Product environment verify failed, switch to test environment to verify receipt.");
+			SendTestNotificationResponse response = JSONUtils.parse(restResponse.getBody(), SendTestNotificationResponse.class);
 
-				return doVerifyReceipt(receiptData, SANDBOX_VERIFY_ENDPOINT, 1);
-			}
-			else
-			{
-				throw new AppleException("Verify receipt failed, result is " + response);
-			}
-		}
-		catch (RestException e)
-		{
-			throw new AppleException(e.getErrorCode(), e.getCodeParams(), e.getMessage(), e);
+			return response.getTestNotificationToken();
 		}
 		catch (JSONException e)
 		{
@@ -97,49 +56,85 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public PurchaseReceipt getPurchaseReceipt(VerifyReceiptResult result, String bundleId, String goodsId, LocalDateTime orderTime)
+	private RestResponse executeRequest(String requestUrl, String requestBody, Map<String, String> headerMap, int retry)
+	        throws AppleException
 	{
-		ReceiptBody receiptBody = result.getReceipt();
-		if (null == receiptBody)
+		String token = getAppleJwtToken(inAppProfile);
+
+		Map<String, String> requestHeaderMap = new HashMap<>(2);
+		requestHeaderMap.put("Authorization", "Bearer" + " " + token);
+		if (null != headerMap)
 		{
-			LOG.error("ReceiptBody is null.");
-			return null;
+			requestHeaderMap.putAll(headerMap);
 		}
 
-		if (!bundleId.equals(receiptBody.getBundleId()))
+		RestResponse restResp = null;
+
+		try
 		{
-			LOG.error("Receipt bundle id is invalid, value is {}.", receiptBody.getBundleId());
-			return null;
+			restResp = restClientService.postJSON(requestUrl, requestBody, headerMap);
 		}
-
-		List<PurchaseReceipt> receipts = receiptBody.getPurchaseReceipts();
-		if (null == receipts)
+		catch (RestException e)
 		{
-			LOG.error("PurchaseReceipt list is null.");
-			return null;
-		}
-
-		long orderTimeTs = LocalDateTimeUtils.toTimestamp(orderTime);
-
-		for (PurchaseReceipt receipt : receipts)
-		{
-			if (!goodsId.equals(receipt.getProductId()))
+			if (HttpStatus.UNAUTHORIZED.value() == e.getStatusCode())
 			{
-				continue;
+				this.token = null;
+
+				if (retry <= 0)
+				{
+					throw new AppleException("Request failed.",
+					        "Response status code is " + restResp.getStatusCode() + ", body is " + restResp.getBody());
+				}
+
+				return executeRequest(requestUrl, requestBody, requestHeaderMap, retry - 1);
 			}
 
-			long purchaseDate = Long.valueOf(receipt.getPurchaseDateMs()).longValue();
-			if (purchaseDate >= orderTimeTs)
-			{
-				return receipt;
-			}
+			throw new AppleException("Request failed.", e);
 		}
 
-		return null;
+		if (HttpStatus.OK.value() == restResp.getStatusCode())
+		{
+			return restResp;
+		}
+		else
+		{
+			throw new AppleException("Request failed.",
+			        "Response status code is " + restResp.getStatusCode() + ", body is " + restResp.getBody());
+		}
+	}
+
+	private synchronized String getAppleJwtToken(InAppProfile profile) throws AppleException
+	{
+		try
+		{
+			if (null != token)
+			{
+				return token;
+			}
+
+			Map<String, Object> header = new HashMap<>(3);
+			header.put("alg", "ES256");
+			header.put("kid", profile.getSecretId());
+			header.put("typ", "JWT");
+
+			Map<String, Object> claims = new HashMap<>(5);
+			claims.put("iss", profile.getIssuerId());
+			claims.put("iat", System.currentTimeMillis() / 1000);
+			long exp = System.currentTimeMillis() + 60 * 60 * 1000;
+			claims.put("exp", exp / 1000);
+			claims.put("aud", "appstoreconnect-v1");
+			claims.put("bid", profile.getBundleId());
+
+			PrivateKey privateKey = profile.getPrivateKey();
+
+			this.token = Jwts.builder().setHeader(header).setClaims(claims).signWith(privateKey, SignatureAlgorithm.ES256).compact();
+
+			return token;
+		}
+		catch (InvalidKeyException e)
+		{
+			throw new AppleException("PrivateKey is invalid.", e);
+		}
 	}
 
 	/**
@@ -150,5 +145,15 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 	public void setRestClientService(RestClientService restClientService)
 	{
 		this.restClientService = restClientService;
+	}
+
+	/**
+	 * 设置inAppProfile
+	 * 
+	 * @param inAppProfile
+	 */
+	public void setInAppProfile(InAppProfile inAppProfile)
+	{
+		this.inAppProfile = inAppProfile;
 	}
 }

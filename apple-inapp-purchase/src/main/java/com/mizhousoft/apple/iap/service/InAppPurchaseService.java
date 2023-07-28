@@ -1,10 +1,6 @@
 package com.mizhousoft.apple.iap.service;
 
-import java.time.LocalDateTime;
-
 import com.mizhousoft.apple.common.AppleException;
-import com.mizhousoft.apple.iap.result.PurchaseReceipt;
-import com.mizhousoft.apple.iap.result.VerifyReceiptResult;
 
 /**
  * 苹果内购服务
@@ -13,28 +9,11 @@ import com.mizhousoft.apple.iap.result.VerifyReceiptResult;
  */
 public interface InAppPurchaseService
 {
-	// 生产环境
-	String PRODUCTION_VERIFY_ENDPOINT = "https://buy.itunes.apple.com/verifyReceipt";
-
-	// 沙箱环境
-	String SANDBOX_VERIFY_ENDPOINT = "https://sandbox.itunes.apple.com/verifyReceipt";
-
 	/**
-	 * 校验凭证
+	 * 测试通知
 	 * 
-	 * @param receiptData
+	 * @return
 	 * @throws AppleException
 	 */
-	VerifyReceiptResult verifyReceipt(String receiptData) throws AppleException;
-
-	/**
-	 * 获取凭证
-	 * 
-	 * @param result
-	 * @param goodsId
-	 * @param productId
-	 * @param orderTime
-	 * @return
-	 */
-	PurchaseReceipt getPurchaseReceipt(VerifyReceiptResult result, String bundleId, String goodsId, LocalDateTime orderTime);
+	String testNotification() throws AppleException;
 }

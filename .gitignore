@@ -7,3 +7,5 @@ pkg
 .factorypath
 .springBeans
 dependency-reduced-pom.xml
+application.properties
+*.p8

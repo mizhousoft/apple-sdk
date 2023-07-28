@@ -25,6 +25,19 @@
 			<version>${apple.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>com.mizhousoft.boot</groupId>
+			<artifactId>restclient-spring-boot-starter</artifactId>
+			<version>${mizhousoft.boot.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpasyncclient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
@@ -43,6 +56,10 @@
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
 		</dependency>
 		<dependency>
     		<groupId>org.junit.jupiter</groupId>
