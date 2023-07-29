@@ -1,6 +1,7 @@
 package com.mizhousoft.apple.iap.service.impl;
 
 import java.security.PrivateKey;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -12,13 +13,20 @@ import org.springframework.http.HttpStatus;
 import com.mizhousoft.apple.common.AppleException;
 import com.mizhousoft.apple.iap.constant.OrderLookupStatus;
 import com.mizhousoft.apple.iap.profile.InAppProfile;
+import com.mizhousoft.apple.iap.request.NotificationHistoryRequest;
 import com.mizhousoft.apple.iap.response.HistoryResponse;
 import com.mizhousoft.apple.iap.response.JWSDecodedHeader;
+import com.mizhousoft.apple.iap.response.NotificationDecodedPayload;
+import com.mizhousoft.apple.iap.response.NotificationHistory;
+import com.mizhousoft.apple.iap.response.NotificationHistoryResponse;
+import com.mizhousoft.apple.iap.response.NotificationHistoryResponseItem;
 import com.mizhousoft.apple.iap.response.OrderLookupResponse;
 import com.mizhousoft.apple.iap.response.SendTestNotificationResponse;
+import com.mizhousoft.apple.iap.response.ServerNotificationResponse;
 import com.mizhousoft.apple.iap.response.TransactionDecodedPayload;
 import com.mizhousoft.apple.iap.service.InAppPurchaseService;
 import com.mizhousoft.apple.iap.util.JwsUtils;
+import com.mizhousoft.apple.iap.util.NotificationDecodedUtils;
 import com.mizhousoft.commons.json.JSONException;
 import com.mizhousoft.commons.json.JSONUtils;
 import com.mizhousoft.commons.lang.CharEncoding;
@@ -63,6 +71,108 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 		catch (JSONException e)
 		{
 			throw new AppleException(e.getErrorCode(), e.getCodeParams(), e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NotificationHistory getNotificationHistory(NotificationHistoryRequest request) throws AppleException
+	{
+		try
+		{
+			String requestUrl = inAppProfile.getEndpoint() + "/inApps/v1/notifications/history";
+
+			String requestBody = JSONUtils.toJSONString(request);
+
+			RestResponse restResponse = executeRequest(requestUrl, requestBody, null, HttpMethod.POST, 1);
+
+			NotificationHistoryResponse response = JSONUtils.parse(restResponse.getBody(), NotificationHistoryResponse.class);
+
+			List<NotificationDecodedPayload> payloads = new ArrayList<>(10);
+
+			List<NotificationHistoryResponseItem> items = response.getItems();
+			if (null != items)
+			{
+				for (NotificationHistoryResponseItem item : items)
+				{
+					String signedPayload = item.getSignedPayload();
+					NotificationDecodedPayload payload = NotificationDecodedUtils.decode(signedPayload);
+					payloads.add(payload);
+				}
+			}
+
+			NotificationHistory history = new NotificationHistory();
+			history.setHasMore(response.isHasMore());
+			history.setPaginationToken(response.getPaginationToken());
+			history.setPayloads(payloads);
+
+			return history;
+		}
+		catch (JSONException e)
+		{
+			throw new AppleException(e.getErrorCode(), e.getCodeParams(), e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NotificationHistory getNotificationHistory(String paginationToken, NotificationHistoryRequest request) throws AppleException
+	{
+		try
+		{
+			String requestUrl = inAppProfile.getEndpoint() + "/inApps/v1/notifications/history?paginationToken=" + paginationToken;
+
+			String requestBody = JSONUtils.toJSONString(request);
+
+			RestResponse restResponse = executeRequest(requestUrl, requestBody, null, HttpMethod.POST, 1);
+
+			NotificationHistoryResponse response = JSONUtils.parse(restResponse.getBody(), NotificationHistoryResponse.class);
+
+			List<NotificationDecodedPayload> payloads = new ArrayList<>(10);
+
+			List<NotificationHistoryResponseItem> items = response.getItems();
+			if (null != items)
+			{
+				for (NotificationHistoryResponseItem item : items)
+				{
+					String signedPayload = item.getSignedPayload();
+					NotificationDecodedPayload payload = NotificationDecodedUtils.decode(signedPayload);
+					payloads.add(payload);
+				}
+			}
+
+			NotificationHistory history = new NotificationHistory();
+			history.setHasMore(response.isHasMore());
+			history.setPaginationToken(response.getPaginationToken());
+			history.setPayloads(payloads);
+
+			return history;
+		}
+		catch (JSONException e)
+		{
+			throw new AppleException(e.getErrorCode(), e.getCodeParams(), e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NotificationDecodedPayload parseNotification(String input) throws AppleException
+	{
+		try
+		{
+			ServerNotificationResponse response = JSONUtils.parse(input, ServerNotificationResponse.class);
+
+			return NotificationDecodedUtils.decode(response.getSignedPayload());
+		}
+		catch (JSONException e)
+		{
+			throw new AppleException("String to object failed.", e);
 		}
 	}
 
@@ -240,4 +350,5 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 	{
 		this.inAppProfile = inAppProfile;
 	}
+
 }

@@ -1,5 +1,7 @@
 package com.mizhousoft.apple.boot;
 
+import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,8 +10,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.mizhousoft.apple.common.AppleException;
+import com.mizhousoft.apple.iap.request.NotificationHistoryRequest;
+import com.mizhousoft.apple.iap.response.NotificationDecodedPayload;
+import com.mizhousoft.apple.iap.response.NotificationHistory;
 import com.mizhousoft.apple.iap.response.TransactionDecodedPayload;
 import com.mizhousoft.apple.iap.service.InAppPurchaseService;
+import com.mizhousoft.commons.lang.LocalDateTimeUtils;
 
 /**
  * InAppPurchaseService Test
@@ -22,6 +28,23 @@ public class InAppPurchaseServiceTest
 {
 	@Autowired
 	private InAppPurchaseService inAppPurchaseService;
+
+	@Test
+	public void parseNotification()
+	{
+		String body = null;
+
+		try
+		{
+			NotificationDecodedPayload payload = inAppPurchaseService.parseNotification(body);
+
+			Assertions.assertNotNull(payload);
+		}
+		catch (AppleException e)
+		{
+			Assertions.fail(e);
+		}
+	}
 
 	@Test
 	public void testNotification()
@@ -43,7 +66,7 @@ public class InAppPurchaseServiceTest
 	{
 		try
 		{
-			String orderId = "10202307290933063107838";
+			String orderId = "4200001836202305142600959916";
 			inAppPurchaseService.lookupOrder(orderId);
 		}
 		catch (AppleException e)
@@ -60,6 +83,25 @@ public class InAppPurchaseServiceTest
 			String transactionId = "260001513300413";
 			TransactionDecodedPayload payload = inAppPurchaseService.getTransactionHistory(transactionId);
 			Assertions.assertNotNull(payload);
+		}
+		catch (AppleException e)
+		{
+			Assertions.fail(e);
+		}
+	}
+
+	@Test
+	public void getNotificationHistory()
+	{
+		try
+		{
+			NotificationHistoryRequest request = new NotificationHistoryRequest();
+			request.setStartDate(LocalDateTimeUtils.toTimestamp(LocalDateTime.now().minusDays(180)));
+			request.setEndDate(LocalDateTimeUtils.toTimestamp(LocalDateTime.now()));
+
+			NotificationHistory history = inAppPurchaseService.getNotificationHistory(request);
+
+			Assertions.assertNotNull(history.getPayloads());
 		}
 		catch (AppleException e)
 		{

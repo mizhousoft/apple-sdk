@@ -10,10 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import com.mizhousoft.apple.boot.properties.AppleProperties;
 import com.mizhousoft.apple.common.AppleException;
 import com.mizhousoft.apple.iap.profile.InAppProfile;
-import com.mizhousoft.apple.iap.service.InAppNotificationService;
 import com.mizhousoft.apple.iap.service.InAppPurchaseService;
 import com.mizhousoft.apple.iap.service.InAppReceiptsService;
-import com.mizhousoft.apple.iap.service.impl.InAppNotificationServiceImpl;
 import com.mizhousoft.apple.iap.service.impl.InAppPurchaseServiceImpl;
 import com.mizhousoft.apple.iap.service.impl.InAppReceiptsServiceImpl;
 import com.mizhousoft.apple.iap.util.P8Loader;
@@ -36,14 +34,6 @@ public class AppleConfiguration
 	private RestClientService restClientService;
 
 	private InAppProfile profile;
-
-	@Bean
-	public InAppNotificationService getInAppNotificationService()
-	{
-		InAppNotificationServiceImpl inAppNotificationService = new InAppNotificationServiceImpl();
-
-		return inAppNotificationService;
-	}
 
 	@Bean
 	public InAppPurchaseService getInAppPurchaseService() throws AppleException, IOException
