@@ -1,6 +1,7 @@
 package com.mizhousoft.apple.iap.service;
 
 import com.mizhousoft.apple.common.AppleException;
+import com.mizhousoft.apple.iap.response.TransactionDecodedPayload;
 
 /**
  * 苹果内购服务
@@ -24,4 +25,12 @@ public interface InAppPurchaseService
 	 * @throws AppleException
 	 */
 	String lookupOrder(String orderId) throws AppleException;
+
+	/**
+	 * 获取订单历史
+	 * 
+	 * @param transactionId
+	 * @throws AppleException
+	 */
+	TransactionDecodedPayload getTransactionHistory(String transactionId) throws AppleException;
 }

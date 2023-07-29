@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.mizhousoft.apple.common.AppleException;
+import com.mizhousoft.apple.iap.response.TransactionDecodedPayload;
 import com.mizhousoft.apple.iap.service.InAppPurchaseService;
 
 /**
@@ -44,6 +45,21 @@ public class InAppPurchaseServiceTest
 		{
 			String orderId = "10202307290933063107838";
 			inAppPurchaseService.lookupOrder(orderId);
+		}
+		catch (AppleException e)
+		{
+			Assertions.fail(e);
+		}
+	}
+
+	@Test
+	public void getTransactionHistory()
+	{
+		try
+		{
+			String transactionId = "260001513300413";
+			TransactionDecodedPayload payload = inAppPurchaseService.getTransactionHistory(transactionId);
+			Assertions.assertNotNull(payload);
 		}
 		catch (AppleException e)
 		{

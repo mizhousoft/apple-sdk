@@ -89,6 +89,16 @@ public class TransactionDecodedPayload
 	/**
 	 * 
 	 */
+	private String storefront;
+
+	/**
+	 * 
+	 */
+	private String storefrontId;
+
+	/**
+	 * 
+	 */
 	private String transactionId;
 
 	/**
@@ -284,6 +294,46 @@ public class TransactionDecodedPayload
 	public void setOriginalPurchaseDate(long originalPurchaseDate)
 	{
 		this.originalPurchaseDate = originalPurchaseDate;
+	}
+
+	/**
+	 * 获取storefront
+	 * 
+	 * @return
+	 */
+	public String getStorefront()
+	{
+		return storefront;
+	}
+
+	/**
+	 * 设置storefront
+	 * 
+	 * @param storefront
+	 */
+	public void setStorefront(String storefront)
+	{
+		this.storefront = storefront;
+	}
+
+	/**
+	 * 获取storefrontId
+	 * 
+	 * @return
+	 */
+	public String getStorefrontId()
+	{
+		return storefrontId;
+	}
+
+	/**
+	 * 设置storefrontId
+	 * 
+	 * @param storefrontId
+	 */
+	public void setStorefrontId(String storefrontId)
+	{
+		this.storefrontId = storefrontId;
 	}
 
 	/**

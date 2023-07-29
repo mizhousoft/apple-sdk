@@ -1,7 +1,9 @@
 package com.mizhousoft.apple.iap.service.impl;
 
 import java.security.PrivateKey;
+import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpMethod;
@@ -10,11 +12,16 @@ import org.springframework.http.HttpStatus;
 import com.mizhousoft.apple.common.AppleException;
 import com.mizhousoft.apple.iap.constant.OrderLookupStatus;
 import com.mizhousoft.apple.iap.profile.InAppProfile;
+import com.mizhousoft.apple.iap.response.HistoryResponse;
+import com.mizhousoft.apple.iap.response.JWSDecodedHeader;
 import com.mizhousoft.apple.iap.response.OrderLookupResponse;
 import com.mizhousoft.apple.iap.response.SendTestNotificationResponse;
+import com.mizhousoft.apple.iap.response.TransactionDecodedPayload;
 import com.mizhousoft.apple.iap.service.InAppPurchaseService;
+import com.mizhousoft.apple.iap.util.JwsUtils;
 import com.mizhousoft.commons.json.JSONException;
 import com.mizhousoft.commons.json.JSONUtils;
+import com.mizhousoft.commons.lang.CharEncoding;
 import com.mizhousoft.commons.restclient.RestException;
 import com.mizhousoft.commons.restclient.RestResponse;
 import com.mizhousoft.commons.restclient.service.RestClientService;
@@ -81,6 +88,44 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 			}
 
 			return null;
+		}
+		catch (JSONException e)
+		{
+			throw new AppleException(e.getErrorCode(), e.getCodeParams(), e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public TransactionDecodedPayload getTransactionHistory(String transactionId) throws AppleException
+	{
+		try
+		{
+			String requestUrl = inAppProfile.getEndpoint() + "/inApps/v1/history/" + transactionId;
+
+			RestResponse restResponse = executeRequest(requestUrl, null, null, HttpMethod.GET, 1);
+
+			HistoryResponse response = JSONUtils.parse(restResponse.getBody(), HistoryResponse.class);
+			List<String> list = response.getSignedTransactions();
+			if (list.isEmpty())
+			{
+				return null;
+			}
+
+			String signedTransaction = list.get(0);
+
+			String[] signedPayloadValues = signedTransaction.split("\\.");
+			String header = new String(Base64.getDecoder().decode(signedPayloadValues[0]), CharEncoding.UTF8);
+			String payload = new String(Base64.getDecoder().decode(signedPayloadValues[1]), CharEncoding.UTF8);
+
+			JWSDecodedHeader jwsHeader = JSONUtils.parse(header, JWSDecodedHeader.class);
+			JwsUtils.verifyJWT(jwsHeader.getX5c(), signedTransaction);
+
+			TransactionDecodedPayload decodedPayload = JSONUtils.parse(payload, TransactionDecodedPayload.class);
+
+			return decodedPayload;
 		}
 		catch (JSONException e)
 		{
