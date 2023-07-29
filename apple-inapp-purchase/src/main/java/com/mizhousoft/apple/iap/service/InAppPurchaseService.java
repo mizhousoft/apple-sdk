@@ -16,4 +16,12 @@ public interface InAppPurchaseService
 	 * @throws AppleException
 	 */
 	String testNotification() throws AppleException;
+
+	/**
+	 * 查询订单
+	 * 
+	 * @param orderId
+	 * @throws AppleException
+	 */
+	String lookupOrder(String orderId) throws AppleException;
 }

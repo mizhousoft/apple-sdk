@@ -12,6 +12,9 @@ public class PurchaseReceipt
 	@JsonProperty("transaction_id")
 	private String transactionId;
 
+	@JsonProperty("original_transaction_id")
+	private String originalTransactionId;
+
 	@JsonProperty("quantity")
 	private String quantity;
 
@@ -39,6 +42,26 @@ public class PurchaseReceipt
 	public void setTransactionId(String transactionId)
 	{
 		this.transactionId = transactionId;
+	}
+
+	/**
+	 * 获取originalTransactionId
+	 * 
+	 * @return
+	 */
+	public String getOriginalTransactionId()
+	{
+		return originalTransactionId;
+	}
+
+	/**
+	 * 设置originalTransactionId
+	 * 
+	 * @param originalTransactionId
+	 */
+	public void setOriginalTransactionId(String originalTransactionId)
+	{
+		this.originalTransactionId = originalTransactionId;
 	}
 
 	/**

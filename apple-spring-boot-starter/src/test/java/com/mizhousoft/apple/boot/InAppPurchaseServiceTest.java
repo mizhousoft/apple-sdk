@@ -36,4 +36,18 @@ public class InAppPurchaseServiceTest
 			Assertions.fail(e);
 		}
 	}
+
+	@Test
+	public void lookupOrder()
+	{
+		try
+		{
+			String orderId = "10202307290933063107838";
+			inAppPurchaseService.lookupOrder(orderId);
+		}
+		catch (AppleException e)
+		{
+			Assertions.fail(e);
+		}
+	}
 }

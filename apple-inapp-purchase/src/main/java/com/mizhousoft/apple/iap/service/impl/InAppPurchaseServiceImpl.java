@@ -4,10 +4,13 @@ import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
 import com.mizhousoft.apple.common.AppleException;
+import com.mizhousoft.apple.iap.constant.OrderLookupStatus;
 import com.mizhousoft.apple.iap.profile.InAppProfile;
+import com.mizhousoft.apple.iap.response.OrderLookupResponse;
 import com.mizhousoft.apple.iap.response.SendTestNotificationResponse;
 import com.mizhousoft.apple.iap.service.InAppPurchaseService;
 import com.mizhousoft.commons.json.JSONException;
@@ -44,7 +47,7 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 		{
 			String requestUrl = inAppProfile.getEndpoint() + "/inApps/v1/notifications/test";
 
-			RestResponse restResponse = executeRequest(requestUrl, null, null, 1);
+			RestResponse restResponse = executeRequest(requestUrl, null, null, HttpMethod.POST, 1);
 
 			SendTestNotificationResponse response = JSONUtils.parse(restResponse.getBody(), SendTestNotificationResponse.class);
 
@@ -56,8 +59,37 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 		}
 	}
 
-	private RestResponse executeRequest(String requestUrl, String requestBody, Map<String, String> headerMap, int retry)
-	        throws AppleException
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String lookupOrder(String orderId) throws AppleException
+	{
+		try
+		{
+			String requestUrl = inAppProfile.getEndpoint() + "/inApps/v1/lookup/" + orderId;
+
+			RestResponse restResponse = executeRequest(requestUrl, null, null, HttpMethod.GET, 1);
+
+			OrderLookupResponse response = JSONUtils.parse(restResponse.getBody(), OrderLookupResponse.class);
+
+			if (OrderLookupStatus.ORDER_ID_VALID == response.getStatus())
+			{
+				String signedTransactions = response.getSignedTransactions();
+
+				return signedTransactions;
+			}
+
+			return null;
+		}
+		catch (JSONException e)
+		{
+			throw new AppleException(e.getErrorCode(), e.getCodeParams(), e.getMessage(), e);
+		}
+	}
+
+	private RestResponse executeRequest(String requestUrl, String requestBody, Map<String, String> headerMap, HttpMethod httpMethod,
+	        int retry) throws AppleException
 	{
 		String token = getAppleJwtToken(inAppProfile);
 
@@ -72,7 +104,14 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 
 		try
 		{
-			restResp = restClientService.postJSON(requestUrl, requestBody, headerMap);
+			if (HttpMethod.POST.equals(httpMethod))
+			{
+				restResp = restClientService.postJSON(requestUrl, requestBody, headerMap);
+			}
+			else
+			{
+				restResp = restClientService.get(requestUrl, headerMap);
+			}
 		}
 		catch (RestException e)
 		{
@@ -86,7 +125,7 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 					        "Response status code is " + restResp.getStatusCode() + ", body is " + restResp.getBody());
 				}
 
-				return executeRequest(requestUrl, requestBody, requestHeaderMap, retry - 1);
+				return executeRequest(requestUrl, requestBody, requestHeaderMap, httpMethod, retry - 1);
 			}
 
 			throw new AppleException("Request failed.", e);
