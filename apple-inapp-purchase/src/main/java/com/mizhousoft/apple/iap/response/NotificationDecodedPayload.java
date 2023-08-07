@@ -251,6 +251,12 @@ public class NotificationDecodedPayload
 		{
 			builder.append("notificationUUID\":\"");
 			builder.append(notificationUUID);
+			builder.append("\", \"");
+		}
+		if (transactionPayload != null)
+		{
+			builder.append("transactionPayload\":\"");
+			builder.append(transactionPayload);
 		}
 		builder.append("\"}");
 		return builder.toString();
