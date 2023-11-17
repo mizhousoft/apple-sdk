@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.mizhousoft.sdk</groupId>
 		<artifactId>apple-sdk</artifactId>
-		<version>1.7.0-SNAPSHOT</version>
+		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>apple-inapp-purchase</artifactId>
@@ -28,14 +28,6 @@
 			<groupId>com.mizhousoft.boot</groupId>
 			<artifactId>restclient-spring-boot-starter</artifactId>
 			<version>${mizhousoft.boot.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpasyncclient</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>

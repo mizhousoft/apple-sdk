@@ -30,7 +30,7 @@ public abstract class JwsUtils
 				throw new AppleException("SubjectX500Principal is invalid, value is " + cert.getSubjectX500Principal().getName());
 			}
 
-			return Jwts.parserBuilder().setSigningKey(cert.getPublicKey()).build().parseClaimsJws(jws);
+			return Jwts.parser().verifyWith(cert.getPublicKey()).build().parseSignedClaims(jws);
 		}
 		catch (JwtException e)
 		{

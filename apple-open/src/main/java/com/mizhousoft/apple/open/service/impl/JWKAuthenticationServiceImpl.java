@@ -164,13 +164,13 @@ public class JWKAuthenticationServiceImpl implements JWKAuthenticationService
 	{
 		try
 		{
-			JwtParser jwtParser = Jwts.parserBuilder().setSigningKey(key).requireAudience(audience).requireSubject(subject)
-			        .requireIssuer(ISSUER).build();
+			JwtParser jwtParser = Jwts.parser().verifyWith(key).requireAudience(audience).requireSubject(subject).requireIssuer(ISSUER)
+			        .build();
 
-			Jws<Claims> claim = jwtParser.parseClaimsJws(jwt);
-			if (claim != null && claim.getBody().containsKey("auth_time"))
+			Jws<Claims> claim = jwtParser.parseSignedClaims(jwt);
+			if (claim != null && claim.getPayload().containsKey("auth_time"))
 			{
-				return claim.getBody();
+				return claim.getPayload();
 			}
 
 			throw new AppleException("Jwt verify failed.");

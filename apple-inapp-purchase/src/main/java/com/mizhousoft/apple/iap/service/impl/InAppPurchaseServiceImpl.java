@@ -35,8 +35,8 @@ import com.mizhousoft.commons.restclient.RestResponse;
 import com.mizhousoft.commons.restclient.service.RestClientService;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.InvalidKeyException;
+import io.jsonwebtoken.security.SignatureAlgorithm;
 
 /**
  * 苹果内购服务
@@ -321,7 +321,10 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 
 			PrivateKey privateKey = profile.getPrivateKey();
 
-			this.token = Jwts.builder().setHeader(header).setClaims(claims).signWith(privateKey, SignatureAlgorithm.ES256).compact();
+			SignatureAlgorithm alg = Jwts.SIG.ES256;
+
+			this.token = Jwts.builder().header().empty().add(header).and().claims().empty().add(claims).and().signWith(privateKey, alg)
+			        .compact();
 
 			return token;
 		}
