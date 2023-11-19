@@ -17,9 +17,9 @@ import com.mizhousoft.apple.iap.service.InAppReceiptsService;
 import com.mizhousoft.commons.json.JSONException;
 import com.mizhousoft.commons.json.JSONUtils;
 import com.mizhousoft.commons.lang.LocalDateTimeUtils;
-import com.mizhousoft.commons.restclient.RestException;
 
 import kong.unirest.core.Unirest;
+import kong.unirest.core.UnirestException;
 
 /**
  * 苹果内购服务
@@ -89,9 +89,9 @@ public class InAppReceiptsServiceImpl implements InAppReceiptsService
 				throw new AppleException("Verify receipt failed, result is " + response);
 			}
 		}
-		catch (RestException e)
+		catch (UnirestException e)
 		{
-			throw new AppleException(e.getErrorCode(), e.getCodeParams(), e.getMessage(), e);
+			throw new AppleException(e.getMessage(), e);
 		}
 		catch (JSONException e)
 		{

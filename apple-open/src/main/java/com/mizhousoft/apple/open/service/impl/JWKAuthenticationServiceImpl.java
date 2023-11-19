@@ -22,7 +22,6 @@ import com.mizhousoft.apple.open.service.JWKAuthenticationService;
 import com.mizhousoft.commons.json.JSONException;
 import com.mizhousoft.commons.json.JSONUtils;
 import com.mizhousoft.commons.lang.CharEncoding;
-import com.mizhousoft.commons.restclient.RestException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -30,6 +29,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import kong.unirest.core.Unirest;
+import kong.unirest.core.UnirestException;
 
 /**
  * 苹果认证服务
@@ -116,7 +116,7 @@ public class JWKAuthenticationServiceImpl implements JWKAuthenticationService
 					break;
 				}
 			}
-			catch (RestException e)
+			catch (UnirestException e)
 			{
 				exception = new AppleException("Fetch public key failed.", e);
 			}
