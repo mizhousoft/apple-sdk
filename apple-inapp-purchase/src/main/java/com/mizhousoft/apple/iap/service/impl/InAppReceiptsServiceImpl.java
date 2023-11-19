@@ -18,7 +18,8 @@ import com.mizhousoft.commons.json.JSONException;
 import com.mizhousoft.commons.json.JSONUtils;
 import com.mizhousoft.commons.lang.LocalDateTimeUtils;
 import com.mizhousoft.commons.restclient.RestException;
-import com.mizhousoft.commons.restclient.service.RestClientService;
+
+import kong.unirest.core.Unirest;
 
 /**
  * 苹果内购服务
@@ -30,9 +31,6 @@ public class InAppReceiptsServiceImpl implements InAppReceiptsService
 	private static final Logger LOG = LoggerFactory.getLogger(InAppReceiptsServiceImpl.class);
 
 	private static final int MAX_TRY_NUMBER = 3;
-
-	// REST服务
-	private RestClientService restClientService;
 
 	private InAppProfile inAppProfile;
 
@@ -53,7 +51,7 @@ public class InAppReceiptsServiceImpl implements InAppReceiptsService
 
 		try
 		{
-			String response = restClientService.postForObject(endpoint, body, String.class);
+			String response = Unirest.post(endpoint).body(body).asObject(String.class).getBody();
 			if (null == response)
 			{
 				LOG.warn("Response result is null, receipt data is {}, endpoint is {}.", receiptData, endpoint);
@@ -144,16 +142,6 @@ public class InAppReceiptsServiceImpl implements InAppReceiptsService
 		}
 
 		return null;
-	}
-
-	/**
-	 * 设置restClientService
-	 * 
-	 * @param restClientService
-	 */
-	public void setRestClientService(RestClientService restClientService)
-	{
-		this.restClientService = restClientService;
 	}
 
 	/**

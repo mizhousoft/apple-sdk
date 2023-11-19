@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 
 import com.mizhousoft.apple.common.AppleException;
 import com.mizhousoft.apple.iap.constant.OrderLookupStatus;
@@ -30,13 +29,14 @@ import com.mizhousoft.apple.iap.util.NotificationDecodedUtils;
 import com.mizhousoft.commons.json.JSONException;
 import com.mizhousoft.commons.json.JSONUtils;
 import com.mizhousoft.commons.lang.CharEncoding;
-import com.mizhousoft.commons.restclient.RestException;
-import com.mizhousoft.commons.restclient.RestResponse;
-import com.mizhousoft.commons.restclient.service.RestClientService;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.SignatureAlgorithm;
+import kong.unirest.core.HttpResponse;
+import kong.unirest.core.HttpStatus;
+import kong.unirest.core.Unirest;
+import kong.unirest.core.UnirestException;
 
 /**
  * 苹果内购服务
@@ -45,9 +45,6 @@ import io.jsonwebtoken.security.SignatureAlgorithm;
  */
 public class InAppPurchaseServiceImpl implements InAppPurchaseService
 {
-	// REST服务
-	private RestClientService restClientService;
-
 	private InAppProfile inAppProfile;
 
 	private volatile String token;
@@ -62,9 +59,9 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 		{
 			String requestUrl = inAppProfile.getEndpoint() + "/inApps/v1/notifications/test";
 
-			RestResponse restResponse = executeRequest(requestUrl, null, null, HttpMethod.POST, 1);
+			HttpResponse<String> httpResponse = executeRequest(requestUrl, null, null, HttpMethod.POST, 1);
 
-			SendTestNotificationResponse response = JSONUtils.parse(restResponse.getBody(), SendTestNotificationResponse.class);
+			SendTestNotificationResponse response = JSONUtils.parse(httpResponse.getBody(), SendTestNotificationResponse.class);
 
 			return response.getTestNotificationToken();
 		}
@@ -86,9 +83,9 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 
 			String requestBody = JSONUtils.toJSONString(request);
 
-			RestResponse restResponse = executeRequest(requestUrl, requestBody, null, HttpMethod.POST, 1);
+			HttpResponse<String> httpResponse = executeRequest(requestUrl, requestBody, null, HttpMethod.POST, 1);
 
-			NotificationHistoryResponse response = JSONUtils.parse(restResponse.getBody(), NotificationHistoryResponse.class);
+			NotificationHistoryResponse response = JSONUtils.parse(httpResponse.getBody(), NotificationHistoryResponse.class);
 
 			List<NotificationDecodedPayload> payloads = new ArrayList<>(10);
 
@@ -128,9 +125,9 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 
 			String requestBody = JSONUtils.toJSONString(request);
 
-			RestResponse restResponse = executeRequest(requestUrl, requestBody, null, HttpMethod.POST, 1);
+			HttpResponse<String> httpResponse = executeRequest(requestUrl, requestBody, null, HttpMethod.POST, 1);
 
-			NotificationHistoryResponse response = JSONUtils.parse(restResponse.getBody(), NotificationHistoryResponse.class);
+			NotificationHistoryResponse response = JSONUtils.parse(httpResponse.getBody(), NotificationHistoryResponse.class);
 
 			List<NotificationDecodedPayload> payloads = new ArrayList<>(10);
 
@@ -186,9 +183,9 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 		{
 			String requestUrl = inAppProfile.getEndpoint() + "/inApps/v1/lookup/" + orderId;
 
-			RestResponse restResponse = executeRequest(requestUrl, null, null, HttpMethod.GET, 1);
+			HttpResponse<String> httpResponse = executeRequest(requestUrl, null, null, HttpMethod.GET, 1);
 
-			OrderLookupResponse response = JSONUtils.parse(restResponse.getBody(), OrderLookupResponse.class);
+			OrderLookupResponse response = JSONUtils.parse(httpResponse.getBody(), OrderLookupResponse.class);
 
 			if (OrderLookupStatus.ORDER_ID_VALID == response.getStatus())
 			{
@@ -215,9 +212,9 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 		{
 			String requestUrl = inAppProfile.getEndpoint() + "/inApps/v1/history/" + transactionId;
 
-			RestResponse restResponse = executeRequest(requestUrl, null, null, HttpMethod.GET, 1);
+			HttpResponse<String> httpResponse = executeRequest(requestUrl, null, null, HttpMethod.GET, 1);
 
-			HistoryResponse response = JSONUtils.parse(restResponse.getBody(), HistoryResponse.class);
+			HistoryResponse response = JSONUtils.parse(httpResponse.getBody(), HistoryResponse.class);
 			List<String> list = response.getSignedTransactions();
 			if (list.isEmpty())
 			{
@@ -243,7 +240,7 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 		}
 	}
 
-	private RestResponse executeRequest(String requestUrl, String requestBody, Map<String, String> headerMap, HttpMethod httpMethod,
+	private HttpResponse<String> executeRequest(String requestUrl, String requestBody, Map<String, String> headerMap, HttpMethod httpMethod,
 	        int retry) throws AppleException
 	{
 		String token = getAppleJwtToken(inAppProfile);
@@ -255,45 +252,55 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 			requestHeaderMap.putAll(headerMap);
 		}
 
-		RestResponse restResp = null;
+		HttpResponse<String> httpResp = null;
 
 		try
 		{
 			if (HttpMethod.POST.equals(httpMethod))
 			{
-				restResp = restClientService.postJSON(requestUrl, requestBody, headerMap);
+				headerMap = null != headerMap ? headerMap : new HashMap<>(01);
+				headerMap.put("Content-Type", "application/json; charset=UTF-8");
+
+				if (null == requestBody)
+				{
+					httpResp = Unirest.post(requestUrl).headers(headerMap).asString();
+				}
+				else
+				{
+					httpResp = Unirest.post(requestUrl).body(requestBody).headers(headerMap).asString();
+				}
 			}
 			else
 			{
-				restResp = restClientService.get(requestUrl, headerMap);
+				httpResp = Unirest.get(requestUrl).headers(headerMap).asString();
 			}
 		}
-		catch (RestException e)
+		catch (UnirestException e)
 		{
-			if (HttpStatus.UNAUTHORIZED.value() == e.getStatusCode())
-			{
-				this.token = null;
-
-				if (retry <= 0)
-				{
-					throw new AppleException("Request failed.",
-					        "Response status code is " + restResp.getStatusCode() + ", body is " + restResp.getBody());
-				}
-
-				return executeRequest(requestUrl, requestBody, requestHeaderMap, httpMethod, retry - 1);
-			}
-
 			throw new AppleException("Request failed.", e);
 		}
 
-		if (HttpStatus.OK.value() == restResp.getStatusCode())
+		if (HttpStatus.UNAUTHORIZED == httpResp.getStatus())
 		{
-			return restResp;
+			this.token = null;
+
+			if (retry <= 0)
+			{
+				throw new AppleException("Request failed.",
+				        "Response status code is " + httpResp.getStatus() + ", body is " + httpResp.getBody());
+			}
+
+			return executeRequest(requestUrl, requestBody, requestHeaderMap, httpMethod, retry - 1);
+		}
+
+		if (HttpStatus.OK == httpResp.getStatus())
+		{
+			return httpResp;
 		}
 		else
 		{
 			throw new AppleException("Request failed.",
-			        "Response status code is " + restResp.getStatusCode() + ", body is " + restResp.getBody());
+			        "Response status code is " + httpResp.getStatus() + ", body is " + httpResp.getBody());
 		}
 	}
 
@@ -332,16 +339,6 @@ public class InAppPurchaseServiceImpl implements InAppPurchaseService
 		{
 			throw new AppleException("PrivateKey is invalid.", e);
 		}
-	}
-
-	/**
-	 * 设置restClientService
-	 * 
-	 * @param restClientService
-	 */
-	public void setRestClientService(RestClientService restClientService)
-	{
-		this.restClientService = restClientService;
 	}
 
 	/**

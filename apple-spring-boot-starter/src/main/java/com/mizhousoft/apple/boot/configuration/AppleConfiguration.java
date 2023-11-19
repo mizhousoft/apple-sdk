@@ -17,7 +17,6 @@ import com.mizhousoft.apple.iap.service.impl.InAppReceiptsServiceImpl;
 import com.mizhousoft.apple.iap.util.P8Loader;
 import com.mizhousoft.apple.open.service.JWKAuthenticationService;
 import com.mizhousoft.apple.open.service.impl.JWKAuthenticationServiceImpl;
-import com.mizhousoft.commons.restclient.service.RestClientService;
 
 /**
  * AppleConfiguration
@@ -30,9 +29,6 @@ public class AppleConfiguration
 	@Autowired
 	private AppleProperties appleProperties;
 
-	@Autowired
-	private RestClientService restClientService;
-
 	private InAppProfile profile;
 
 	@Bean
@@ -42,7 +38,6 @@ public class AppleConfiguration
 
 		InAppPurchaseServiceImpl inAppPurchaseService = new InAppPurchaseServiceImpl();
 		inAppPurchaseService.setInAppProfile(profile);
-		inAppPurchaseService.setRestClientService(restClientService);
 
 		return inAppPurchaseService;
 	}
@@ -53,7 +48,6 @@ public class AppleConfiguration
 		InAppProfile profile = getProfile();
 
 		InAppReceiptsServiceImpl inAppReceiptsService = new InAppReceiptsServiceImpl();
-		inAppReceiptsService.setRestClientService(restClientService);
 		inAppReceiptsService.setInAppProfile(profile);
 
 		return inAppReceiptsService;
@@ -63,7 +57,6 @@ public class AppleConfiguration
 	public JWKAuthenticationService getJWKAuthenticationService()
 	{
 		JWKAuthenticationServiceImpl authcService = new JWKAuthenticationServiceImpl();
-		authcService.setRestClientService(restClientService);
 
 		return authcService;
 	}

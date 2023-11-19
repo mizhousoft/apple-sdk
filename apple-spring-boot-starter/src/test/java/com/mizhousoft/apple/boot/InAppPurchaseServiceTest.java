@@ -3,11 +3,10 @@ package com.mizhousoft.apple.boot;
 import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.mizhousoft.apple.common.AppleException;
 import com.mizhousoft.apple.iap.request.NotificationHistoryRequest;
@@ -15,19 +14,28 @@ import com.mizhousoft.apple.iap.response.NotificationDecodedPayload;
 import com.mizhousoft.apple.iap.response.NotificationHistory;
 import com.mizhousoft.apple.iap.response.TransactionDecodedPayload;
 import com.mizhousoft.apple.iap.service.InAppPurchaseService;
+import com.mizhousoft.commons.httpclient.unirest.UnirestLogInterceptor;
 import com.mizhousoft.commons.lang.LocalDateTimeUtils;
+
+import kong.unirest.core.Unirest;
 
 /**
  * InAppPurchaseService Test
  *
  * @version
  */
-@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = DemoApplication.class)
 public class InAppPurchaseServiceTest
 {
 	@Autowired
 	private InAppPurchaseService inAppPurchaseService;
+
+	@BeforeAll
+	public static void init()
+	{
+		Unirest.config().interceptor(new UnirestLogInterceptor());
+		Unirest.config().connectTimeout(60 * 1000);
+	}
 
 	@Test
 	public void parseNotification()

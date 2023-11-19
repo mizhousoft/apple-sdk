@@ -23,13 +23,13 @@ import com.mizhousoft.commons.json.JSONException;
 import com.mizhousoft.commons.json.JSONUtils;
 import com.mizhousoft.commons.lang.CharEncoding;
 import com.mizhousoft.commons.restclient.RestException;
-import com.mizhousoft.commons.restclient.service.RestClientService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
+import kong.unirest.core.Unirest;
 
 /**
  * 苹果认证服务
@@ -39,9 +39,6 @@ import io.jsonwebtoken.Jwts;
 public class JWKAuthenticationServiceImpl implements JWKAuthenticationService
 {
 	private static final Logger LOG = LoggerFactory.getLogger(JWKAuthenticationServiceImpl.class);
-
-	// REST服务
-	private RestClientService restClientService;
 
 	private ApplePublicKeys applePublicKeys;
 
@@ -110,7 +107,8 @@ public class JWKAuthenticationServiceImpl implements JWKAuthenticationService
 
 			try
 			{
-				applePubKeys = restClientService.getForObject(FETCH_PUBLIC_KEY_URL, ApplePublicKeys.class);
+				applePubKeys = Unirest.get(FETCH_PUBLIC_KEY_URL).asObject(ApplePublicKeys.class).getBody();
+
 				if (null != applePubKeys && !CollectionUtils.isEmpty(applePubKeys.getKeys()))
 				{
 					LOG.info("Fetch apple public key successfully.");
@@ -206,15 +204,5 @@ public class JWKAuthenticationServiceImpl implements JWKAuthenticationService
 		{
 			throw new AppleException("jwt data is invalid, data:" + jwt, e);
 		}
-	}
-
-	/**
-	 * 设置restClientService
-	 * 
-	 * @param restClientService
-	 */
-	public void setRestClientService(RestClientService restClientService)
-	{
-		this.restClientService = restClientService;
 	}
 }
