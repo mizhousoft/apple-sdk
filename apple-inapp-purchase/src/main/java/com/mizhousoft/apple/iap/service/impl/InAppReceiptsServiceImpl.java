@@ -51,7 +51,7 @@ public class InAppReceiptsServiceImpl implements InAppReceiptsService
 
 		try
 		{
-			String response = Unirest.post(endpoint).body(body).asObject(String.class).getBody();
+			String response = Unirest.post(endpoint).body(body).asString().getBody();
 			if (null == response)
 			{
 				LOG.warn("Response result is null, receipt data is {}, endpoint is {}.", receiptData, endpoint);
