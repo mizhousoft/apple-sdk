@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.HttpMethod;
-
 import com.mizhousoft.apple.common.AppleException;
 import com.mizhousoft.apple.iap.constant.OrderLookupStatus;
 import com.mizhousoft.apple.iap.profile.InAppProfile;
@@ -33,6 +31,7 @@ import com.mizhousoft.commons.lang.CharEncoding;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.SignatureAlgorithm;
+import kong.unirest.core.HttpMethod;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.HttpStatus;
 import kong.unirest.core.Unirest;
