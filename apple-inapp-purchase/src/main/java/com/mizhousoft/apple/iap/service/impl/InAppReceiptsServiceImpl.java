@@ -1,5 +1,6 @@
 package com.mizhousoft.apple.iap.service.impl;
 
+import java.net.http.HttpConnectTimeoutException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mizhousoft.apple.common.AppleConnectTimeoutException;
 import com.mizhousoft.apple.common.AppleException;
 import com.mizhousoft.apple.iap.constant.VerifyReceiptConstants;
 import com.mizhousoft.apple.iap.profile.InAppProfile;
@@ -91,6 +93,11 @@ public class InAppReceiptsServiceImpl implements InAppReceiptsService
 		}
 		catch (UnirestException e)
 		{
+			if (e.getCause() instanceof HttpConnectTimeoutException)
+			{
+				throw new AppleConnectTimeoutException(e.getMessage(), e);
+			}
+
 			throw new AppleException(e.getMessage(), e);
 		}
 		catch (JSONException e)
