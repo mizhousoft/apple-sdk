@@ -4,7 +4,7 @@ import java.net.http.HttpConnectTimeoutException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,7 +119,7 @@ public class InAppReceiptsServiceImpl implements InAppReceiptsService
 			return null;
 		}
 
-		if (!StringUtils.equals(inAppProfile.getBundleId(), receiptBody.getBundleId()))
+		if (!Strings.CS.equals(inAppProfile.getBundleId(), receiptBody.getBundleId()))
 		{
 			LOG.error("Receipt bundle id is invalid, value is {}.", receiptBody.getBundleId());
 			return null;
